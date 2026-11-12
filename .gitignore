@@ -1,0 +1,14 @@
+target/
+out/
+.idea/
+.vscode/
+*.iml
+*.log
+*.tmp
+.env
+.local/
+.campus-lost-found/
+users.json
+lost_items.json
+found_items.json
+*.json.bak

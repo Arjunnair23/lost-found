@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse found-item reports shared by your campus community.">
+    <title>Browse Found Items | Campus Lost &amp; Found</title>
+    <link rel="stylesheet" href="style.css?v=20261112-2">
+</head>
+<body>
+    <nav class="navbar" aria-label="Main navigation">
+        <div class="logo">Campus <span>Lost &amp; Found</span></div>
+        <div class="nav-links">
+            <a href="dashboard.jsp">Dashboard</a>
+            <a href="found-items.html" class="active" aria-current="page">Browse found items</a>
+            <a href="report-found.html">Report found item</a>
+        </div>
+    </nav>
+
+    <main class="page-content">
+        <header class="page-heading listing-heading">
+            <p class="page-eyebrow">CAMPUS COMMUNITY</p>
+            <h1>Browse found items</h1>
+            <p>Look through the found-item reports shared by people on your campus.</p>
+            <form id="filters" class="app-form listing-filters">
+                <div class="filter-field">
+                    <label for="filterKeyword">Search</label>
+                    <input id="filterKeyword" name="q" type="search" placeholder="Title or details">
+                </div>
+                <div class="filter-field">
+                    <label for="filterCategory">Category</label>
+                    <select id="filterCategory" name="category">
+                        <option value="">All categories</option>
+                        <option>Electronics</option>
+                        <option>Books</option>
+                        <option>ID Card</option>
+                        <option>Wallet or Purse</option>
+                        <option>Clothing</option>
+                        <option>Keys</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="filterLocation">Location</label>
+                    <input id="filterLocation" name="location" type="search" placeholder="Any location">
+                </div>
+                <div class="filter-field">
+                    <label for="filterStatus">Status</label>
+                    <select id="filterStatus" name="status">
+                        <option value="">All statuses</option>
+                        <option value="FOUND">Active</option>
+                        <option value="RETURNED">Returned</option>
+                    </select>
+                </div>
+                <button class="filter-submit" type="submit">Search</button>
+            </form>
+        </header>
+
+        <p id="message" class="state-message loading-state" role="status" aria-live="polite">Loading found-item reports…</p>
+        <div id="itemsContainer" class="item-grid" aria-live="polite"></div>
+
+        <div class="listing-footer">
+            <a class="text-link" href="dashboard.jsp">← Back to dashboard</a>
+            <a class="btn primary" href="report-found.html">Report found item</a>
+        </div>
+    </main>
+    <footer class="site-footer">
+        <span>© 2026 Campus Lost &amp; Found</span>
+        <a href="dashboard.jsp">Campus community support</a>
+    </footer>
+
+    <script>
+        async function loadFoundItems() {
+            const message = document.getElementById("message");
+            const container = document.getElementById("itemsContainer");
+
+            try {
+                const params = new URLSearchParams(new FormData(document.getElementById("filters"))); params.set("type","FOUND");
+                const response = await fetch("view-items?" + params.toString(), {
+                    method: "GET",
+                    credentials: "same-origin",
+                    headers: { "Accept": "application/json" }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error("Server error: " + response.status);
+                }
+
+                const items = await response.json();
+                if (!Array.isArray(items)) {
+                    throw new Error("Unexpected found-items response");
+                }
+
+                container.replaceChildren();
+                message.textContent = "";
+                message.className = "state-message";
+                message.hidden = true;
+
+                if (items.length === 0) {
+                    message.textContent = "No found items have been reported yet. Check back later or share a report of your own.";
+                    message.className = "state-message empty-state";
+                    message.hidden = false;
+                    return;
+                }
+
+                items.forEach(item => {
+                    const card = document.createElement("article");
+                    card.className = "item-card";
+
+                    const cardTop = document.createElement("div");
+                    cardTop.className = "item-card-top";
+
+                    const mark = document.createElement("span");
+                    mark.className = "item-card-mark";
+                    mark.setAttribute("aria-hidden", "true");
+                    mark.textContent = "⌕";
+                    cardTop.appendChild(mark);
+
+                    const status = document.createElement("span");
+                    status.className = "item-status";
+                    status.textContent = item.status === "RETURNED"
+                        ? "Returned"
+                        : item.status || "Reported";
+                    cardTop.appendChild(status);
+                    card.appendChild(cardTop);
+
+                    const heading = document.createElement("h2");
+                    heading.textContent = item.itemName || "Unnamed item";
+                    card.appendChild(heading);
+
+                    const fields = [
+                        ["Category", item.category],
+                        ["Description", item.description],
+                        ["Location", item.foundLocation],
+                        ["Date", item.foundDate],
+                        ["Contact", item.contactInfo],
+
+                    ];
+
+                    const details = document.createElement("dl");
+                    details.className = "item-details";
+                    fields.forEach(([label, value]) => {
+                        const group = document.createElement("div");
+                        group.className = "item-detail";
+                        const term = document.createElement("dt");
+                        term.textContent = label;
+                        const detail = document.createElement("dd");
+                        const missingContact = label === "Contact"
+                            && (value == null || String(value).trim() === "");
+                        detail.textContent = missingContact
+                            ? "Contact not provided"
+                            : value == null || value === "" ? "—" : String(value);
+                        group.append(term, detail);
+                        details.appendChild(group);
+                    });
+                    card.appendChild(details);
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                message.textContent = "Unable to load found items. Please try again later.";
+                message.className = "state-message error-state";
+                message.hidden = false;
+                console.error(error);
+            }
+        }
+
+        document.getElementById("filters").addEventListener("submit", event => { event.preventDefault(); loadFoundItems(); });
+        loadFoundItems();
+    </script>
+    <script src="csrf.js?v=20261112-2"></script>
+</body>
+</html>

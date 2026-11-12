@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Load before the login form. Do not add async or defer. -->
+    <script src="csrf.js?v=20261112-3"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+          content="Sign in to manage your campus lost and found reports.">
+
+    <title>Login - Campus Lost &amp; Found</title>
+    <link rel="stylesheet" href="style.css?v=20261112-2">
+</head>
+
+<body>
+    <nav class="navbar" aria-label="Main navigation">
+        <div class="logo">
+            Campus <span>Lost &amp; Found</span>
+        </div>
+
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="login.html" class="active">Login</a>
+            <a href="register.html" class="nav-register">Register</a>
+        </div>
+    </nav>
+
+    <main class="container auth-card">
+        <p class="page-eyebrow">WELCOME BACK</p>
+        <h1>Sign in to your account</h1>
+
+        <p class="auth-intro">
+            Continue helping your campus community reconnect
+            with lost belongings.
+        </p>
+
+        <p id="loginMessage"
+           class="form-message"
+           role="status"
+           aria-live="polite"></p>
+
+        <form id="loginForm" action="login" method="post">
+            <label for="username">Username</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter username"
+                autocomplete="username"
+                required
+            >
+
+            <label for="password">Password</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter password"
+                autocomplete="current-password"
+                required
+            >
+
+            <button type="submit" class="app-submit" disabled>
+                Login
+            </button>
+        </form>
+
+        <noscript>
+            <p class="form-message error-message">
+                JavaScript is required for secure sign-in.
+                Enable JavaScript and reload this page.
+            </p>
+        </noscript>
+
+        <p>
+            Don't have an account?
+            <a href="register.html">Register</a>
+        </p>
+    </main>
+
+    <footer class="site-footer">
+        <span>© 2026 Campus Lost &amp; Found</span>
+        <a href="index.html">Campus community support</a>
+    </footer>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const form = document.getElementById("loginForm");
+            const submit = form.querySelector("button[type='submit']");
+            const message = document.getElementById("loginMessage");
+            const params = new URLSearchParams(window.location.search);
+
+            // Block submission if the security script failed to load.
+            form.addEventListener("submit", function (event) {
+                if (form.dataset.csrfReady !== "true") {
+                    event.preventDefault();
+                    message.textContent =
+                        "Secure sign-in is unavailable. Reload the page.";
+                    message.classList.add("error-message");
+                }
+            }, true);
+
+            const csrfLoaded =
+                window.CampusCsrf &&
+                typeof window.CampusCsrf.getToken === "function";
+
+            if (!csrfLoaded) {
+                message.textContent =
+                    "Secure sign-in could not initialize. " +
+                    "Reload the page and try again.";
+                message.classList.add("error-message");
+                return;
+            }
+
+            // The handler is installed. It fetches a token on submission.
+            form.dataset.csrfReady = "true";
+            submit.disabled = false;
+
+            const errors = {
+                invalid: "Invalid username or password.",
+                empty: "Please enter your username and password.",
+                "session-expired":
+                    "Your session expired. Please sign in again."
+            };
+
+            const error = params.get("error");
+
+            if (Object.prototype.hasOwnProperty.call(errors, error)) {
+                message.textContent = errors[error];
+                message.classList.add("error-message");
+            } else if (params.get("success") === "registered") {
+                message.textContent =
+                    "Registration successful! Please log in.";
+                message.classList.add("success-message");
+            }
+        })();
+    </script>
+</body>
+</html>

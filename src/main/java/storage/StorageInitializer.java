@@ -1,0 +1,3 @@
+package storage;
+import jakarta.servlet.ServletContextEvent;import jakarta.servlet.ServletContextListener;import jakarta.servlet.annotation.WebListener;
+@WebListener public class StorageInitializer implements ServletContextListener { @Override public void contextInitialized(ServletContextEvent event){JsonStore store=new JsonStore();store.users();store.lost();store.found();event.getServletContext().log("JSON data storage initialized outside the web application directory.");} }

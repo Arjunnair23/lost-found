@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create a lost-item report for your campus community.">
+    <title>Report a Lost Item | Campus Lost &amp; Found</title>
+    <link rel="stylesheet" href="style.css?v=20261112-2">
+</head>
+<body>
+    <nav class="navbar" aria-label="Main navigation">
+        <div class="logo">Campus <span>Lost &amp; Found</span></div>
+        <div class="nav-links">
+            <a href="dashboard.jsp">Dashboard</a>
+            <a href="view-items.html">Browse items</a>
+            <a href="my-items.html">My reports</a>
+        </div>
+    </nav>
+
+    <main class="container form-page">
+        <header class="page-heading">
+            <p class="page-eyebrow">LOST SOMETHING?</p>
+            <h1>Report a lost item</h1>
+            <p>Share a few details so your campus community can help keep an eye out.</p>
+        </header>
+
+        <form class="app-form" action="add-item" method="post" data-csrf-managed="true">
+            <p id="formMessage" class="form-message error-message field-wide" role="status" aria-live="polite"></p>
+            <div class="field">
+                <label for="itemName">Item name</label>
+                <input type="text" id="itemName" name="itemName" placeholder="e.g. Black wallet" required maxlength="150">
+            </div>
+
+            <div class="field">
+                <label for="category">Category</label>
+                <select id="category" name="category" required>
+                    <option value="">Select a category</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Books">Books</option>
+                    <option value="ID Card">ID Card</option>
+                    <option value="Wallet or Purse">Wallet or Purse</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="Keys">Keys</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="field field-wide">
+                <label for="description">Description <span class="optional-label">Optional</span></label>
+                <textarea id="description" name="description" placeholder="Colour, identifying marks, or other helpful details" rows="4" maxlength="2000"></textarea>
+            </div>
+
+            <div class="field">
+                <label for="lostLocation">Where did you lose it?</label>
+                <input type="text" id="lostLocation" name="lostLocation" placeholder="e.g. College library" required maxlength="255">
+            </div>
+
+            <div class="field">
+                <label for="lostDate">Date lost</label>
+                <input type="date" id="lostDate" name="lostDate" required>
+            </div>
+
+            <div class="field field-wide">
+                <label for="contactInfo">Contact information <span class="optional-label">Visible to logged-in users so they can contact you about this item.</span></label>
+                <input type="text" id="contactInfo" name="contactInfo" placeholder="Phone number or email" required maxlength="150">
+            </div>
+
+            <div class="form-actions field-wide">
+                <a class="text-link" href="dashboard.jsp">Cancel</a>
+                <button type="submit" class="app-submit">Submit lost-item report</button>
+            </div>
+        </form>
+    </main>
+    <footer class="site-footer">
+        <span>© 2026 Campus Lost &amp; Found</span>
+        <a href="dashboard.jsp">Campus community support</a>
+    </footer>
+    <script src="report-form.js"></script>
+    <script src="csrf.js?v=20261112-2"></script>
+</body>
+</html>
